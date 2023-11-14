@@ -6,6 +6,8 @@ package br.pro.software.academico.tela;
 
 import br.pro.software.academico.model.Curso;
 import br.pro.software.academico.dao.CursoDAO;
+import java.awt.Color;
+import java.sql.SQLException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -29,9 +31,8 @@ public class CursosTela extends javax.swing.JFrame {
 
     private void buscarCursos() {
         try {
-            CursoDAO cursoDAO = new CursoDAO();
-            Curso[] cursos = cursoDAO.obterCursos();
-            cursosComboBox.setModel(new DefaultComboBoxModel<>(cursos));
+            recarregarCursos();
+            cursosComboBoxActionPerformed(null);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     "Cursos indisponíveis, tente novamente mais tarde");
@@ -61,6 +62,12 @@ public class CursosTela extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Gerenciamento de cursos"));
 
+        cursosComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cursosComboBoxActionPerformed(evt);
+            }
+        });
+
         idCursoTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("id"));
         idCursoTextField.setEnabled(false);
         idCursoTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -86,12 +93,32 @@ public class CursosTela extends javax.swing.JFrame {
         });
 
         adicionarCursoButton.setText("Novo");
+        adicionarCursoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                adicionarCursoButtonActionPerformed(evt);
+            }
+        });
 
         atualizarCursoButton.setText("Atualizar");
+        atualizarCursoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                atualizarCursoButtonActionPerformed(evt);
+            }
+        });
 
         removerCursoButton.setText("Remover");
+        removerCursoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removerCursoButtonActionPerformed(evt);
+            }
+        });
 
         cancelarCursoButton.setText("Cancelar");
+        cancelarCursoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelarCursoButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -170,6 +197,103 @@ public class CursosTela extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_nomeCursoTextFieldActionPerformed
 
+    private void adicionarCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adicionarCursoButtonActionPerformed
+        if (adicionarCursoButton.getText().equals("Novo")) {
+            adicionarCursoButton.setText("CONFIRMAR");
+            adicionarCursoButton.setBackground(Color.GREEN);
+            cancelarCursoButton.setBackground(Color.red);
+            nomeCursoTextField.setText("");
+            nomeCursoTextField.setEnabled(true);
+            tipoCursoTextField.setText("");
+            tipoCursoTextField.setEnabled(true);
+        } else {
+            Curso curso = new Curso(0, nomeCursoTextField.getText(), tipoCursoTextField.getText());
+            CursoDAO cursoDAO = new CursoDAO();
+            try {
+                cursoDAO.cadastrar(curso);
+                recarregarCursos();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, e);
+            }
+            desfazer();
+        }
+        
+    }//GEN-LAST:event_adicionarCursoButtonActionPerformed
+
+    private void recarregarCursos() {
+        CursoDAO cursoDAO = new CursoDAO();
+        try {
+            Curso[] cursos = cursoDAO.obterCursos();
+            cursosComboBox.setModel(new DefaultComboBoxModel<>(cursos));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e);
+        }
+    }
+    
+    private void cancelarCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarCursoButtonActionPerformed
+        desfazer();
+    }//GEN-LAST:event_cancelarCursoButtonActionPerformed
+
+    private void removerCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removerCursoButtonActionPerformed
+        if (removerCursoButton.getText().equals("Remover")) {
+            removerCursoButton.setText("CONFIRMAR");
+            removerCursoButton.setBackground(Color.GREEN);
+            cancelarCursoButton.setBackground(Color.red);
+        } else {
+            Curso curso = (Curso)cursosComboBox.getSelectedItem();
+            CursoDAO cursoDAO = new CursoDAO();
+            try {
+                cursoDAO.remover(curso);
+                recarregarCursos();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, e);
+            }
+            desfazer();
+        }
+    }//GEN-LAST:event_removerCursoButtonActionPerformed
+
+    private void cursosComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cursosComboBoxActionPerformed
+           Curso curso = (Curso)cursosComboBox.getSelectedItem();
+           idCursoTextField.setText("" + curso.getId());
+           nomeCursoTextField.setText(curso.getNome());
+           tipoCursoTextField.setText(curso.getTipo());
+           
+    }//GEN-LAST:event_cursosComboBoxActionPerformed
+
+    private void atualizarCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atualizarCursoButtonActionPerformed
+        if (atualizarCursoButton.getText().equals("Atualizar")) {
+            atualizarCursoButton.setText("CONFIRMAR");
+            atualizarCursoButton.setBackground(Color.GREEN);
+            cancelarCursoButton.setBackground(Color.red);
+            nomeCursoTextField.setEnabled(true);
+            tipoCursoTextField.setEnabled(true);
+        } else {
+            Curso curso = new Curso(Integer.parseInt(idCursoTextField.getText()), nomeCursoTextField.getText(), tipoCursoTextField.getText());
+            CursoDAO cursoDAO = new CursoDAO();
+            try {
+                cursoDAO.atualizar(curso);
+                desfazer();
+                recarregarCursos();
+                cursosComboBoxActionPerformed(null);
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, e);
+            }
+        }
+    }//GEN-LAST:event_atualizarCursoButtonActionPerformed
+
+    private void desfazer() {
+        adicionarCursoButton.setText("Novo");
+        adicionarCursoButton.setBackground(Color.LIGHT_GRAY);
+        removerCursoButton.setText("Remover");
+        removerCursoButton.setBackground(Color.LIGHT_GRAY);
+        atualizarCursoButton.setText("Atualizar");
+        atualizarCursoButton.setBackground(Color.LIGHT_GRAY);
+        nomeCursoTextField.setEnabled(false);
+        tipoCursoTextField.setEnabled(false);
+        cancelarCursoButton.setBackground(Color.LIGHT_GRAY);
+        cursosComboBoxActionPerformed(null);
+    }
+    
     /**
      * @param args the command line arguments
      */

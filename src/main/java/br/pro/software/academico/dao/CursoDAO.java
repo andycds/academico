@@ -15,6 +15,36 @@ import java.sql.SQLException;
  * @author andyc
  */
 public class CursoDAO {
+    public void atualizar(Curso curso) throws SQLException {
+        String sql = "update tb_curso set nome = ?, tipo = ? where id = ?";
+        try (Connection conn = ConexaoBD.obterConexao();
+                PreparedStatement ps = conn.prepareStatement(sql);) {
+                ps.setString(1, curso.getNome());
+                ps.setString(2, curso.getTipo());
+                ps.setInt(3, curso.getId());
+                ps.execute();
+        }
+    }
+        
+    public void cadastrar(Curso curso) throws SQLException {
+        String sql = "insert into tb_curso (nome, tipo) values (?,?)";
+        try (Connection conn = ConexaoBD.obterConexao();
+                PreparedStatement ps = conn.prepareStatement(sql);) {
+                ps.setString(1, curso.getNome());
+                ps.setString(2, curso.getTipo());
+                ps.execute();
+        }
+    }
+    
+    public void remover(Curso curso) throws SQLException {
+        String sql = "delete from tb_curso where id=?";
+        try (Connection conn = ConexaoBD.obterConexao();
+                PreparedStatement ps = conn.prepareStatement(sql);) {
+                ps.setInt(1, curso.getId());
+                ps.execute();
+        }
+    }
+    
     public Curso[] obterCursos() throws SQLException {
         String sql = "select * from tb_curso";
         try (Connection conn = ConexaoBD.obterConexao();
